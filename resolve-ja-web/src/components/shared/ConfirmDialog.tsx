@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useId } from 'react';
+import { ReactNode, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
 type ConfirmDialogProps = {
@@ -20,33 +20,51 @@ export function ConfirmDialog({
   onConfirm,
   trigger,
 }: ConfirmDialogProps) {
-  const dialogId = useId();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      <label htmlFor={dialogId} className="inline-flex cursor-pointer">
+      <span
+        className="inline-flex cursor-pointer"
+        onClick={() => {
+          setIsOpen(true);
+        }}
+      >
         {trigger}
-      </label>
-      <input id={dialogId} type="checkbox" className="peer sr-only" />
-      <div className="fixed inset-0 z-50 hidden bg-black/40 peer-checked:block" />
-      <div className="fixed left-1/2 top-1/2 z-50 hidden w-[92%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-background p-6 shadow-xl peer-checked:block">
-        <h3 className="text-lg font-semibold">{title}</h3>
-        <p className="mt-2 text-sm text-muted-foreground">{description}</p>
-        <div className="mt-6 flex justify-end gap-2">
-          <label htmlFor={dialogId}>
-            <Button variant="outline">{cancelLabel}</Button>
-          </label>
-          <label htmlFor={dialogId}>
+      </span>
+
+      {isOpen ? (
+        <>
+          <div
+            className="fixed inset-0 z-50 bg-black/40"
+            onClick={() => {
+              setIsOpen(false);
+            }}
+          />
+          <div className="fixed left-1/2 top-1/2 z-50 w-[92%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-background p-6 shadow-xl">
+            <h3 className="text-lg font-semibold">{title}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsOpen(false);
+                }}
+              >
+                {cancelLabel}
+              </Button>
             <Button
               onClick={() => {
+                setIsOpen(false);
                 onConfirm();
               }}
             >
               {confirmLabel}
             </Button>
-          </label>
-        </div>
-      </div>
+            </div>
+          </div>
+        </>
+      ) : null}
     </>
   );
 }

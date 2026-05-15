@@ -29,21 +29,26 @@ export type MeResponse = {
   providerProfile: ProviderProfile | null;
 };
 
+export type AuthRole = 'solicitante' | 'prestador' | 'admin';
+
 export type SignInInput = {
   email: string;
   password: string;
+  role: AuthRole;
 };
 
 export type SignUpInput = {
   fullName: string;
   email: string;
   password: string;
+  role: Exclude<AuthRole, 'admin'>;
 };
 
 export type AuthContextValue = {
   session: Session | null;
   accessToken: string | null;
   me: MeResponse | null;
+  activeRole: AuthRole | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   signIn: (input: SignInInput) => Promise<void>;

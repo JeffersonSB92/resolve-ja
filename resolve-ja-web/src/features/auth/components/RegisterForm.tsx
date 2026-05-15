@@ -21,6 +21,7 @@ export function RegisterForm() {
       email: '',
       password: '',
       confirmPassword: '',
+      role: 'solicitante',
     },
   });
 
@@ -30,6 +31,7 @@ export function RegisterForm() {
         fullName: values.fullName,
         email: values.email,
         password: values.password,
+        role: values.role,
       });
 
       toast.success('Conta criada com sucesso.');
@@ -41,6 +43,23 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
+      <div>
+        <label htmlFor="register-role" className="mb-1 block text-sm font-medium">
+          Quero usar como
+        </label>
+        <select
+          id="register-role"
+          className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
+          {...form.register('role')}
+        >
+          <option value="solicitante">Solicitante</option>
+          <option value="prestador">Prestador</option>
+        </select>
+        {form.formState.errors.role ? (
+          <p className="mt-1 text-xs text-destructive">{form.formState.errors.role.message}</p>
+        ) : null}
+      </div>
+
       <div>
         <label htmlFor="register-fullname" className="mb-1 block text-sm font-medium">
           Nome completo

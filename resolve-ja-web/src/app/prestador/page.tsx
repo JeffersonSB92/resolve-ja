@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { BriefcaseBusiness, Wrench } from 'lucide-react';
+import { BriefcaseBusiness, ReceiptText, Wrench } from 'lucide-react';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -49,7 +49,16 @@ export default function PrestadorPage() {
       <PageHeader
         title="Dashboard do prestador"
         description="Acompanhe seu status e oportunidades abertas na sua região."
-        action={<Button asChild variant="outline"><Link href="/prestador/servicos"><Wrench className="size-4" />Gerenciar serviços</Link></Button>}
+        action={(
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline">
+              <Link href="/prestador/servicos"><Wrench className="size-4" />Gerenciar serviços</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/prestador/orcamentos"><ReceiptText className="size-4" />Meus orçamentos</Link>
+            </Button>
+          </div>
+        )}
       />
 
       <ProviderStatusCard profile={profile} hasServices={services.length > 0} />

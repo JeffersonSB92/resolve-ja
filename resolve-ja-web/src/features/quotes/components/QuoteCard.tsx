@@ -1,28 +1,44 @@
 'use client';
 
-import { Clock3, FileText } from 'lucide-react';
+import { Clock3, FileText, Undo2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
 import { MoneyDisplay } from '@/components/shared/MoneyDisplay';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { mapAuthErrorMessage } from '@/features/auth/api';
+import { useAcceptQuote, useWithdrawQuote } from '@/features/quotes/hooks';
 import { Quote } from '@/features/quotes/types';
-import { useAcceptQuote } from '@/features/quotes/hooks';
 
 type QuoteCardProps = {
   quote: Quote;
   requestId: string;
   canAccept?: boolean;
+  canWithdraw?: boolean;
 };
 
-export function QuoteCard({ quote, requestId, canAccept = false }: QuoteCardProps) {
+export function QuoteCard({
+  quote,
+  requestId,
+  canAccept = false,
+  canWithdraw = false,
+}: QuoteCardProps) {
   const acceptMutation = useAcceptQuote();
+  const withdrawMutation = useWithdrawQuote();
 
   const handleAccept = async () => {
     try {
       await acceptMutation.mutateAsync({ quoteId: quote.id, requestId });
       toast.success('Orçamento aceito com sucesso.');
+    } catch (error) {
+      toast.error(mapAuthErrorMessage(error));
+    }
+  };
+
+  const handleWithdraw = async () => {
+    try {
+      await withdrawMutation.mutateAsync({ quoteId: quote.id, requestId });
+      toast.success('Orçamento retirado com sucesso.');
     } catch (error) {
       toast.error(mapAuthErrorMessage(error));
     }
@@ -58,8 +74,8 @@ export function QuoteCard({ quote, requestId, canAccept = false }: QuoteCardProp
         ) : null}
       </div>
 
-      {canAccept && quote.status === 'sent' ? (
-        <div className="mt-4">
+      <div className="mt-4 flex flex-wrap gap-2">
+        {canAccept && quote.status === 'sent' ? (
           <ConfirmDialog
             title="Aceitar orçamento"
             description="Ao aceitar, esta proposta será definida como escolhida para a solicitação."
@@ -68,13 +84,30 @@ export function QuoteCard({ quote, requestId, canAccept = false }: QuoteCardProp
               void handleAccept();
             }}
             trigger={
-              <Button className="w-full" disabled={acceptMutation.isPending}>
+              <Button className="w-full sm:w-auto" disabled={acceptMutation.isPending}>
                 Aceitar orçamento
               </Button>
             }
           />
-        </div>
-      ) : null}
+        ) : null}
+
+        {canWithdraw && quote.status === 'sent' ? (
+          <ConfirmDialog
+            title="Retirar orçamento"
+            description="Deseja retirar este orçamento da solicitação?"
+            confirmLabel={withdrawMutation.isPending ? 'Retirando...' : 'Retirar orçamento'}
+            onConfirm={() => {
+              void handleWithdraw();
+            }}
+            trigger={
+              <Button variant="outline" className="w-full sm:w-auto" disabled={withdrawMutation.isPending}>
+                <Undo2 className="size-4" />
+                Retirar orçamento
+              </Button>
+            }
+          />
+        ) : null}
+      </div>
     </article>
   );
 }

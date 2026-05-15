@@ -5,6 +5,7 @@ import { EmptyState } from '@/components/shared/EmptyState';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { LoadingState } from '@/components/shared/LoadingState';
 import { mapAuthErrorMessage } from '@/features/auth/api';
+import { useAuth } from '@/features/auth/hooks';
 import { useRequestQuotes } from '@/features/quotes/hooks';
 import { QuoteCard } from '@/features/quotes/components/QuoteCard';
 
@@ -14,7 +15,12 @@ type QuoteListProps = {
 };
 
 export function QuoteList({ requestId, canAccept = true }: QuoteListProps) {
+  const { me } = useAuth();
   const { data, isLoading, isError, error, refetch } = useRequestQuotes(requestId);
+  const providerProfileId =
+    me?.providerProfile && typeof me.providerProfile === 'object' && 'id' in me.providerProfile
+      ? String(me.providerProfile.id)
+      : null;
 
   if (isLoading) {
     return <LoadingState lines={3} />;
@@ -48,7 +54,12 @@ export function QuoteList({ requestId, canAccept = true }: QuoteListProps) {
       <h3 className="text-lg font-semibold tracking-tight">Orçamentos recebidos</h3>
       <div className="grid gap-4 md:grid-cols-2">
         {quotes.map((quote) => (
-          <QuoteCard key={quote.id} quote={quote} requestId={requestId} canAccept={canAccept} />
+          <QuoteCard
+            key={quote.id}
+            quote={quote}
+            requestId={requestId}
+            canAccept={canAccept && providerProfileId !== quote.provider_id}
+          />
         ))}
       </div>
     </section>

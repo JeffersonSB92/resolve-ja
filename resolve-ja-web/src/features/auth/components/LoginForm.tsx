@@ -19,6 +19,7 @@ export function LoginForm() {
     defaultValues: {
       email: '',
       password: '',
+      role: 'solicitante',
     },
   });
 
@@ -27,6 +28,7 @@ export function LoginForm() {
       await signIn({
         email: values.email,
         password: values.password,
+        role: values.role,
       });
       toast.success('Login realizado com sucesso.');
       router.replace('/dashboard');
@@ -37,6 +39,24 @@ export function LoginForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-border/70 bg-card p-6 shadow-sm">
+      <div>
+        <label htmlFor="login-role" className="mb-1 block text-sm font-medium">
+          Entrar como
+        </label>
+        <select
+          id="login-role"
+          className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/40"
+          {...form.register('role')}
+        >
+          <option value="solicitante">Solicitante</option>
+          <option value="prestador">Prestador</option>
+          <option value="admin">Admin</option>
+        </select>
+        {form.formState.errors.role ? (
+          <p className="mt-1 text-xs text-destructive">{form.formState.errors.role.message}</p>
+        ) : null}
+      </div>
+
       <div>
         <label htmlFor="login-email" className="mb-1 block text-sm font-medium">
           E-mail

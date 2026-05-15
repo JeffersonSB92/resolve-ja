@@ -59,7 +59,7 @@ export function useSendQuote() {
     onSuccess: async (quote) => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.quotes.byRequest(quote.request_id) });
       await queryClient.invalidateQueries({ queryKey: queryKeys.requests.detail(quote.request_id) });
-      await queryClient.invalidateQueries({ queryKey: ['providers', 'quotes'] });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.quotes.mine() });
     },
   });
 }

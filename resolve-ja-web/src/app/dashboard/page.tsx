@@ -7,7 +7,7 @@ import { useAuth } from '@/features/auth/hooks';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { isLoading, isAuthenticated, me } = useAuth();
+  const { isLoading, isAuthenticated, me, activeRole } = useAuth();
 
   useEffect(() => {
     if (isLoading) {
@@ -19,8 +19,24 @@ export default function DashboardPage() {
       return;
     }
 
-    if (me?.isAdmin) {
+    if (activeRole === 'admin') {
       router.replace('/admin');
+      return;
+    }
+
+    if (activeRole === 'prestador') {
+      const providerStatus = me?.providerProfile?.status;
+      if (providerStatus === 'active') {
+        router.replace('/prestador');
+        return;
+      }
+
+      router.replace('/prestador/onboarding');
+      return;
+    }
+
+    if (activeRole === 'solicitante') {
+      router.replace('/solicitante');
       return;
     }
 
@@ -37,7 +53,7 @@ export default function DashboardPage() {
     }
 
     router.replace('/solicitante');
-  }, [isAuthenticated, isLoading, me, router]);
+  }, [activeRole, isAuthenticated, isLoading, me, router]);
 
   return <LoadingState lines={3} className="m-6" />;
 }

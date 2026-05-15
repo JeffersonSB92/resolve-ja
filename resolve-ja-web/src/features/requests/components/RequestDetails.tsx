@@ -8,6 +8,7 @@ import { StatusBadge } from '@/components/shared/StatusBadge';
 import { AttendanceStatusPanel } from '@/features/attendance/components/AttendanceStatusPanel';
 import { CustomerAttendanceActions } from '@/features/attendance/components/CustomerAttendanceActions';
 import { mapAuthErrorMessage } from '@/features/auth/api';
+import { useAuth } from '@/features/auth/hooks';
 import { RequestMessages } from '@/features/messages/components/RequestMessages';
 import { QuoteList } from '@/features/quotes/components/QuoteList';
 import { RequestActions } from '@/features/requests/components/RequestActions';
@@ -18,6 +19,7 @@ import { formatDateTime } from '@/lib/utils/formatters';
 
 export function RequestDetails({ requestId }: { requestId: string }) {
   const [isEditing, setIsEditing] = useState(false);
+  const { me } = useAuth();
   const { data: request, isLoading, isError, error, refetch } = useRequest(requestId);
 
   if (isLoading) {
@@ -34,6 +36,8 @@ export function RequestDetails({ requestId }: { requestId: string }) {
       />
     );
   }
+
+  const canAcceptQuotes = me?.userId === request.requester_id;
 
   return (
     <div className="space-y-4">
@@ -84,7 +88,7 @@ export function RequestDetails({ requestId }: { requestId: string }) {
 
       <RequestTimeline request={request} />
 
-      <QuoteList requestId={request.id} canAccept />
+      <QuoteList requestId={request.id} canAccept={canAcceptQuotes} />
 
       <RequestMessages requestId={request.id} />
 

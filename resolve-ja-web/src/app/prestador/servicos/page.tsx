@@ -74,7 +74,7 @@ export default function PrestadorServicosPage() {
         <div className="grid gap-4 lg:grid-cols-2">
           {providerServices.map((item) => (
             <ProviderServiceCard
-              key={item.id}
+              key={`${item.provider_id}-${item.service_id}`}
               item={item}
               service={catalog.find((service) => service.id === item.service_id)}
             />

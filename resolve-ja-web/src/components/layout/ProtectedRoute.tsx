@@ -38,11 +38,29 @@ export function ProtectedRoute({ area, children }: ProtectedRouteProps) {
       return;
     }
 
+    if (area === 'admin' && auth.activeRole !== 'admin') {
+      hasRedirected.current = true;
+      router.replace('/dashboard');
+      return;
+    }
+
+    if (area === 'prestador' && auth.activeRole !== 'prestador') {
+      hasRedirected.current = true;
+      router.replace('/dashboard');
+      return;
+    }
+
+    if (area === 'solicitante' && auth.activeRole !== 'solicitante') {
+      hasRedirected.current = true;
+      router.replace('/dashboard');
+      return;
+    }
+
     if (area === 'prestador' && !auth.me?.providerProfile && !isProviderOnboardingPath(pathname)) {
       hasRedirected.current = true;
       router.replace('/prestador/onboarding');
     }
-  }, [auth.isAuthenticated, auth.isLoading, auth.me?.isAdmin, auth.me?.providerProfile, area, pathname, router]);
+  }, [auth.activeRole, auth.isAuthenticated, auth.isLoading, auth.me?.isAdmin, auth.me?.providerProfile, area, pathname, router]);
 
   if (auth.isLoading) {
     return <LoadingState lines={4} className="m-6" />;
@@ -53,6 +71,18 @@ export function ProtectedRoute({ area, children }: ProtectedRouteProps) {
   }
 
   if (area === 'admin' && !auth.me?.isAdmin) {
+    return <LoadingState lines={2} className="m-6" />;
+  }
+
+  if (area === 'admin' && auth.activeRole !== 'admin') {
+    return <LoadingState lines={2} className="m-6" />;
+  }
+
+  if (area === 'prestador' && auth.activeRole !== 'prestador') {
+    return <LoadingState lines={2} className="m-6" />;
+  }
+
+  if (area === 'solicitante' && auth.activeRole !== 'solicitante') {
     return <LoadingState lines={2} className="m-6" />;
   }
 

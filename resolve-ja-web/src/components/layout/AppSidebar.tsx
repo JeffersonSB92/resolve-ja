@@ -29,13 +29,14 @@ const areaMenus: Record<AppArea, NavItem[]> = {
     { href: '/solicitante', label: 'Dashboard', icon: LayoutGrid },
     { href: '/solicitante/enderecos', label: 'Endereços', icon: MapPinHouse },
     { href: '/solicitante/solicitacoes', label: 'Solicitações', icon: FolderKanban },
-    { href: '/solicitante/nova-solicitacao', label: 'Nova solicitação', icon: ClipboardCheck },
+    { href: '/solicitante/solicitacoes/nova', label: 'Nova solicitação', icon: ClipboardCheck },
   ],
   prestador: [
     { href: '/prestador', label: 'Dashboard', icon: LayoutGrid },
     { href: '/prestador/onboarding', label: 'Onboarding', icon: UserRoundCog },
     { href: '/prestador/servicos', label: 'Serviços', icon: Wrench },
     { href: '/prestador/oportunidades', label: 'Oportunidades', icon: Search },
+    { href: '/prestador/orcamentos', label: 'Orçamentos', icon: FileWarning },
     { href: '/prestador/atendimentos', label: 'Atendimentos', icon: ClipboardCheck },
   ],
   admin: [

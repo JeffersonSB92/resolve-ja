@@ -8,11 +8,19 @@ export async function getMe(token: string): Promise<MeResponse> {
 
 export function mapAuthErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
+    if (error.statusCode === 0 || error.code === 'NETWORK_ERROR') {
+      return 'A API está indisponível no momento. Verifique se o backend está rodando.';
+    }
+
     if (error.statusCode === 401) {
       return 'Sua sessão expirou. Faça login novamente.';
     }
 
     if (error.statusCode >= 500) {
+      if (process.env.NODE_ENV !== 'production') {
+        return `Erro interno da API (${error.code}): ${error.message}`;
+      }
+
       return 'A API está indisponível no momento. Tente novamente em instantes.';
     }
 

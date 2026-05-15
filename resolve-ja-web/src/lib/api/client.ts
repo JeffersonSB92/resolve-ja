@@ -21,14 +21,25 @@ function isApiFailureResponse(value: unknown): value is ApiFailureResponse {
   return typeof value.error.code === 'string' && typeof value.error.message === 'string';
 }
 
-async function parseResponseBody(response: Response): Promise<unknown> {
-  const contentType = response.headers.get('content-type');
+function isErrorLikeBody(
+  value: unknown,
+): value is { code: string; message: string; details?: unknown } {
+  if (!isObject(value)) return false;
+  return typeof value.code === 'string' && typeof value.message === 'string';
+}
 
-  if (!contentType || !contentType.includes('application/json')) {
+async function parseResponseBody(response: Response): Promise<unknown> {
+  const rawBody = await response.text();
+
+  if (!rawBody) {
     return null;
   }
 
-  return response.json();
+  try {
+    return JSON.parse(rawBody) as unknown;
+  } catch {
+    return rawBody;
+  }
 }
 
 export async function apiFetch<T>(
@@ -38,16 +49,25 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const { token, signal, body, headers } = options;
 
-  const response = await fetch(`${API_URL}${path}`, {
-    method,
-    signal,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...headers,
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      method,
+      signal,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...headers,
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch {
+    throw new ApiError({
+      statusCode: 0,
+      code: 'NETWORK_ERROR',
+      message: 'Não foi possível conectar com a API.',
+    });
+  }
 
   const payload = await parseResponseBody(response);
 
@@ -61,10 +81,27 @@ export async function apiFetch<T>(
       });
     }
 
+    if (isErrorLikeBody(payload)) {
+      throw new ApiError({
+        statusCode: response.status,
+        code: payload.code,
+        message: payload.message,
+        details: payload.details,
+      });
+    }
+
+    if (typeof payload === 'string' && payload.trim().length > 0) {
+      throw new ApiError({
+        statusCode: response.status,
+        code: 'HTTP_ERROR',
+        message: payload.slice(0, 300),
+      });
+    }
+
     throw new ApiError({
       statusCode: response.status,
       code: 'HTTP_ERROR',
-      message: 'Não foi possível processar sua solicitação.',
+      message: `Não foi possível processar sua solicitação (HTTP ${response.status}).`,
     });
   }
 
